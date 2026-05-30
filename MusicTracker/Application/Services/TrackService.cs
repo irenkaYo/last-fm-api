@@ -1,4 +1,6 @@
 using Application.DTOs.External;
+using Application.DTOs.External.Recent;
+using Application.DTOs.External.RecentTracks;
 using Application.Interfaces;
 
 namespace Application.Services;
@@ -26,5 +28,17 @@ public class TrackService : ITrackService
         //сохранение в БД, вызов метода из репозитория
     
         return topTracks;
+    }
+
+    public async Task<List<RecentTrackDto>> GetUserRecentTracks(string userName)
+    {
+        var response = await _client.GetUserRecentTracks(userName);
+        
+        if (response ==  null)
+            throw new Exception("No recent tarcks found");
+
+        var recentTracks = response.RecentTracks.Track;
+        
+        return recentTracks;
     }
 }
