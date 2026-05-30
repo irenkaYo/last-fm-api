@@ -20,4 +20,11 @@ public class TrackController : ControllerBase
         var tracks = await _trackService.GetTopTracks(userName);
         return Ok(tracks);
     }
+
+    [HttpGet("recent")]
+    public async Task<IActionResult> GetRecentTracks([FromQuery] string userName)
+    {
+        var tracks = await _trackService.GetUserRecentTracks(userName);
+        return Ok(tracks);
+    }
 }
