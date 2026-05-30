@@ -10,12 +10,15 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
 builder.Services.Configure<MusicApiSettings>(
     builder.Configuration.GetSection("MusicApi"));
 
 builder.Services.AddScoped<ITrackService, TrackService>();
-builder.Services.AddHttpClient<IMusicApiClient, MusicApiClient>();
+builder.Services.AddScoped<IArtistService, ArtistService>();
+builder.Services.AddHttpClient<IMusicApiClient, MusicApiClient>(client =>
+{
+    client.BaseAddress = new Uri("https://ws.audioscrobbler.com/");
+});
 
 var app = builder.Build();
 
