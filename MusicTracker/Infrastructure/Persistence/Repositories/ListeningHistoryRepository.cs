@@ -25,4 +25,9 @@ public class ListeningHistoryRepository : IListeningHistoryRepository
             .Where(h => h.UserName == userName)
             .MaxAsync(h => (DateTime?)h.PlayedAt);
     }
+
+    public async Task<List<ListeningHistory>> GetHistoryByUserName(string userName)
+    {
+        return await _dbContext.ListeningHistories.Where(h => h.UserName == userName).ToListAsync();
+    }
 }
