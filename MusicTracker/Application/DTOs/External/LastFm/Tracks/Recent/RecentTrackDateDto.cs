@@ -4,6 +4,6 @@ namespace Application.DTOs.External.RecentTracks;
 
 public class RecentTrackDateDto
 {
-    [JsonPropertyName("#text")]
-    public string Text { get; set; }
+    [JsonPropertyName("uts")]
+    public string Uts { get; set; }
 }
