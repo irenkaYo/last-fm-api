@@ -24,4 +24,15 @@ public class TrackRepository : ITrackRepository
         await _dbContext.Tracks.AddRangeAsync(tracks);
         await _dbContext.SaveChangesAsync();
     }
+
+    public async Task<List<Track>> GetUserTracks(List<ListeningHistory> history)
+    {
+        var trackIds = history
+            .Select(h => h.TrackId)
+            .Distinct();
+
+        return await _dbContext.Tracks
+            .Where(t => trackIds.Contains(t.Id))
+            .ToListAsync();
+    }
 }
