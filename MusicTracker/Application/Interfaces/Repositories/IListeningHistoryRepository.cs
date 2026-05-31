@@ -5,4 +5,5 @@ namespace Application.Interfaces.Repositories;
 public interface IListeningHistoryRepository
 {
     public Task SaveHistory(List<ListeningHistory> history);
+    public Task<DateTime?> GetLastPlayedAt(string userName);
 }
