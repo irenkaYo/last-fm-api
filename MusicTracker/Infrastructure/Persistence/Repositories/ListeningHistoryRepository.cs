@@ -1,5 +1,6 @@
 using Application.Interfaces.Repositories;
 using Domain.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Repositories;
 
@@ -18,4 +19,10 @@ public class ListeningHistoryRepository : IListeningHistoryRepository
         await _dbContext.SaveChangesAsync();
     }
     
+    public async Task<DateTime?> GetLastPlayedAt(string userName)
+    {
+        return await _dbContext.ListeningHistories
+            .Where(h => h.UserName == userName)
+            .MaxAsync(h => (DateTime?)h.PlayedAt);
+    }
 }
