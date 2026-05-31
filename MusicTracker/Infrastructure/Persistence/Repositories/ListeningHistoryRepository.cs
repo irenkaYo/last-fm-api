@@ -30,4 +30,9 @@ public class ListeningHistoryRepository : IListeningHistoryRepository
     {
         return await _dbContext.ListeningHistories.Where(h => h.UserName == userName).ToListAsync();
     }
+    
+    public async Task<List<ListeningHistory>> GetHistoryByUserNameAndTime(string userName, DateTime startDate, DateTime endDate)
+    {
+        return await _dbContext.ListeningHistories.Where(h => h.UserName == userName && h.PlayedAt >= startDate && h.PlayedAt <= endDate).ToListAsync();
+    }
 }
