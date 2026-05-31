@@ -11,13 +11,11 @@ public class TrackService : ITrackService
 {
     private static readonly int TopAtistsCount = 5;
     private static readonly int TopTracksCount = 10;
-    private readonly IMusicApiClient _client;
     private readonly ITrackRepository _trackRepository;
     private readonly IListeningHistoryRepository _listeningHistoryRepository;
     
-    public TrackService(IMusicApiClient client, ITrackRepository trackRepository, IListeningHistoryRepository listeningHistoryRepository)
+    public TrackService(ITrackRepository trackRepository, IListeningHistoryRepository listeningHistoryRepository)
     {
-        _client = client;
         _trackRepository = trackRepository;
         _listeningHistoryRepository = listeningHistoryRepository;
     }
@@ -61,89 +59,6 @@ public class TrackService : ITrackService
 
         TrackStatisticDto statistic = new TrackStatisticDto(trackCount, artistCount, generalDuration);
         return statistic;
-    }
-
-    public async Task SaveRecentTracks(string userName)
-    {
-        var response = await _client.GetUserRecentTracks(userName);
-
-        if (response == null)
-            throw new Exception("No recent tracks found");
-
-        var recentTracks = response.RecentTracks.Track;
-
-        var allTracks = await SaveNewTracks(recentTracks);
-
-        var history = await CreateListeningHistory(
-            userName,
-            recentTracks,
-            allTracks);
-
-        await _listeningHistoryRepository.SaveHistory(history);
-    }
-    
-    private async Task<List<Track>> SaveNewTracks(List<RecentTrackDto> recentTracks)
-    {
-        var allTracks = await _trackRepository.GetAllTracks();
-
-        var newTracks = recentTracks
-            .Where(rt => !allTracks.Any(t =>
-                t.Name == rt.Name &&
-                t.ArtistName == rt.Artist.Name))
-            .ToList();
-
-        List<Track> tracksToSave = [];
-
-        foreach (var newTrack in newTracks)
-        {
-            var answer = await _client.GetTrackInfo(
-                newTrack.Name,
-                newTrack.Artist.Name);
-
-            int duration = int.Parse(answer.Track.Duration);
-
-            tracksToSave.Add(
-                new Track(
-                    newTrack.Name,
-                    duration,
-                    newTrack.Artist.Name));
-        }
-
-        await _trackRepository.SaveTracks(tracksToSave);
-
-        allTracks.AddRange(tracksToSave);
-
-        return allTracks;
-    }
-    
-    private async Task<List<ListeningHistory>> CreateListeningHistory(string userName, List<RecentTrackDto> recentTracks, List<Track> allTracks)
-    {
-        DateTime? lastPlayedAt =
-            await _listeningHistoryRepository.GetLastPlayedAt(userName);
-
-        List<ListeningHistory> history = [];
-
-        foreach (var recent in recentTracks)
-        {
-            DateTime playedAt = DateTimeOffset
-                .FromUnixTimeSeconds(long.Parse(recent.Date.Uts))
-                .UtcDateTime;
-
-            if (lastPlayedAt != null && playedAt <= lastPlayedAt)
-                continue;
-
-            var trackId = allTracks.First(t =>
-                t.Name == recent.Name &&
-                t.ArtistName == recent.Artist.Name).Id;
-
-            history.Add(
-                new ListeningHistory(
-                    trackId,
-                    userName,
-                    playedAt));
-        }
-
-        return history;
     }
     
     private async Task<List<Track>> GetUserTracks(string userName)
