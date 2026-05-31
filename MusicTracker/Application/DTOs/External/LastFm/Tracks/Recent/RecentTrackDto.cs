@@ -10,4 +10,7 @@ public class RecentTrackDto
 
     [JsonPropertyName("artist")]
     public RecentTrackArtistDto Artist { get; set; }
+    
+    [JsonPropertyName("date")]
+    public RecentTrackDateDto Date { get; set; }
 }
