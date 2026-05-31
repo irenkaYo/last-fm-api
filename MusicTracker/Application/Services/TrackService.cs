@@ -28,14 +28,26 @@ public class TrackService : ITrackService
     public async Task SaveRecentTracks(string userName)
     {
         var response = await _client.GetUserRecentTracks(userName);
-        
-        if (response ==  null)
+
+        if (response == null)
             throw new Exception("No recent tracks found");
 
         var recentTracks = response.RecentTracks.Track;
 
-        List<Track> allTracks = await _trackRepository.GetAllTracks();
-        
+        var allTracks = await SaveNewTracks(recentTracks);
+
+        var history = await CreateListeningHistory(
+            userName,
+            recentTracks,
+            allTracks);
+
+        await _listeningHistoryRepository.SaveHistory(history);
+    }
+    
+    private async Task<List<Track>> SaveNewTracks(List<RecentTrackDto> recentTracks)
+    {
+        var allTracks = await _trackRepository.GetAllTracks();
+
         var newTracks = recentTracks
             .Where(rt => !allTracks.Any(t =>
                 t.Name == rt.Name &&
@@ -50,18 +62,26 @@ public class TrackService : ITrackService
                 newTrack.Name,
                 newTrack.Artist.Name);
 
-            int trackDuration = int.Parse(answer.Track.Duration);
+            int duration = int.Parse(answer.Track.Duration);
 
             tracksToSave.Add(
                 new Track(
                     newTrack.Name,
-                    trackDuration,
+                    duration,
                     newTrack.Artist.Name));
         }
 
         await _trackRepository.SaveTracks(tracksToSave);
-        
-        DateTime? lastPlayedAt = await _listeningHistoryRepository.GetLastPlayedAt(userName);
+
+        allTracks.AddRange(tracksToSave);
+
+        return allTracks;
+    }
+    
+    private async Task<List<ListeningHistory>> CreateListeningHistory(string userName, List<RecentTrackDto> recentTracks, List<Track> allTracks)
+    {
+        DateTime? lastPlayedAt =
+            await _listeningHistoryRepository.GetLastPlayedAt(userName);
 
         List<ListeningHistory> history = [];
 
@@ -70,15 +90,21 @@ public class TrackService : ITrackService
             DateTime playedAt = DateTimeOffset
                 .FromUnixTimeSeconds(long.Parse(recent.Date.Uts))
                 .UtcDateTime;
-            
+
+            if (lastPlayedAt != null && playedAt <= lastPlayedAt)
+                continue;
+
             var trackId = allTracks.First(t =>
                 t.Name == recent.Name &&
                 t.ArtistName == recent.Artist.Name).Id;
-            
-            if (lastPlayedAt == null || playedAt > lastPlayedAt)
-                history.Add(new ListeningHistory(trackId, userName, playedAt));
+
+            history.Add(
+                new ListeningHistory(
+                    trackId,
+                    userName,
+                    playedAt));
         }
-        
-        await _listeningHistoryRepository.SaveHistory(history);
+
+        return history;
     }
 }
