@@ -14,17 +14,6 @@ public class ArtistService : IArtistService
 
     public async Task<List<ArtistDto>> GetTopArtists(string userName)
     {
-        var response = await _client.GetUserTopArtists(userName);
-
-        if (response == null)
-        {
-            throw new Exception("No top artist found");
-        }
-        
-        var topArtists = response.TopArtists.Artists;
-        
-        //....
-        
-        return topArtists;
+       
     }
 }

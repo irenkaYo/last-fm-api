@@ -1,5 +1,4 @@
 using Application.DTOs.External;
-using Application.DTOs.External.Recent;
 using Application.DTOs.External.RecentTracks;
 using Application.Interfaces;
 
@@ -16,18 +15,8 @@ public class TrackService : ITrackService
 
     public async Task<List<TrackDto>> GetTopTracks(string userName)
     {
-        var response = await _client.GetUserTopTracks(userName);
-
-        if (response == null)
-        {
-            throw new Exception("No top tracks found");
-        }
-
-        var topTracks = response.TopTracks.Tracks;
-        // dto in domain
-        //сохранение в БД, вызов метода из репозитория
     
-        return topTracks;
+       
     }
 
     public async Task<List<RecentTrackDto>> GetUserRecentTracks(string userName)
@@ -35,9 +24,11 @@ public class TrackService : ITrackService
         var response = await _client.GetUserRecentTracks(userName);
         
         if (response ==  null)
-            throw new Exception("No recent tarcks found");
+            throw new Exception("No recent tracks found");
 
         var recentTracks = response.RecentTracks.Track;
+        
+        //перед сохранением в бд, я должна проверить, если ли там такой трек, чтоб не перепроверять duration
         
         return recentTracks;
     }
