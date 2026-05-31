@@ -4,9 +4,9 @@ public class TrackStatisticDto
 {
     public int TrackCount { get; set; }
     public int ArtistCount { get; set; }
-    public int GeneralDuration { get; set; }
+    public TimeSpan GeneralDuration { get; set; }
 
-    public TrackStatisticDto(int trackCount, int artistCount, int generalDuration)
+    public TrackStatisticDto(int trackCount, int artistCount, TimeSpan generalDuration)
     {
         TrackCount = trackCount;
         ArtistCount = artistCount;

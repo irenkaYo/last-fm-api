@@ -4,10 +4,10 @@ public class Track
 {
     public Guid Id { get; set; }
     public string Name { get; set; }
-    public int Duration { get; set; }
+    public TimeSpan Duration { get; set; }
     public string ArtistName { get; set; }
 
-    public Track(string name, int duration, string artistName)
+    public Track(string name, TimeSpan duration, string artistName)
     {
         Id = Guid.NewGuid();
         Name = name;

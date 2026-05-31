@@ -55,9 +55,9 @@ public class TrackService : ITrackService
             .Distinct()
             .Count();
 
-        int generalDuration = userTracks.Sum(t => t.Duration);
-
-        TrackStatisticDto statistic = new TrackStatisticDto(trackCount, artistCount, generalDuration);
+        TimeSpan totalDuration = TimeSpan.FromTicks(userTracks.Sum(t => t.Duration.Ticks) );
+        
+        TrackStatisticDto statistic = new TrackStatisticDto(trackCount, artistCount, totalDuration);
         return statistic;
     }
     

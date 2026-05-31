@@ -55,12 +55,21 @@ public class SyncService : ISyncService
                 newTrack.Name,
                 newTrack.Artist.Name);
 
-            int duration = int.Parse(answer.Track.Duration);
+            TimeSpan totalDuration = new TimeSpan();
+            if (answer?.Track != null)
+            {
+                int duration = int.Parse(answer.Track.Duration);
+                totalDuration = TimeSpan.FromMilliseconds(duration);
+            }
+            else
+            {
+                totalDuration = TimeSpan.Zero;
+            }
 
             tracksToSave.Add(
                 new Track(
                     newTrack.Name,
-                    duration,
+                    totalDuration,
                     newTrack.Artist.Name));
         }
 
