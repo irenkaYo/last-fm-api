@@ -1,4 +1,5 @@
 using Application.DTOs.External;
+using Application.DTOs.External.LastFm.Tracks;
 using Application.DTOs.External.RecentTracks;
 using Application.Interfaces;
 using Application.Interfaces.Repositories;
@@ -43,6 +44,23 @@ public class TrackService : ITrackService
             .Take(TopTracksCount)
             .Select(g => g.First())
             .ToList();
+    }
+
+    public async Task<TrackStatisticDto> GetUserStatistic(string userName, DateTime startDate, DateTime endDate)
+    {
+        List<Track> userTracks = await GetUserTracksByTime(userName, startDate, endDate);
+
+        int trackCount = userTracks.Count;
+
+        int artistCount = userTracks
+            .Select(t => t.ArtistName)
+            .Distinct()
+            .Count();
+
+        int generalDuration = userTracks.Sum(t => t.Duration);
+
+        TrackStatisticDto statistic = new TrackStatisticDto(trackCount, artistCount, generalDuration);
+        return statistic;
     }
 
     public async Task SaveRecentTracks(string userName)
@@ -131,6 +149,13 @@ public class TrackService : ITrackService
     private async Task<List<Track>> GetUserTracks(string userName)
     {
         var userHistory = await  _listeningHistoryRepository.GetHistoryByUserName(userName);
+        List<Track> userTracks = await _trackRepository.GetUserTracks(userHistory);
+        return userTracks;
+    }
+    
+    private async Task<List<Track>> GetUserTracksByTime(string userName, DateTime startDate, DateTime endDate)
+    {
+        var userHistory = await  _listeningHistoryRepository.GetHistoryByUserNameAndTime(userName, startDate, endDate);
         List<Track> userTracks = await _trackRepository.GetUserTracks(userHistory);
         return userTracks;
     }
