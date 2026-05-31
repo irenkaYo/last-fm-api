@@ -14,17 +14,24 @@ public class TrackController : ControllerBase
         _trackService = trackService;
     }
 
-    [HttpGet("top")]
+    [HttpGet("top/tracks")]
     public async Task<IActionResult> GetTopTracks([FromQuery] string userName)
     {
         var tracks = await _trackService.GetTopTracks(userName);
         return Ok(tracks);
     }
-
-    [HttpGet("recent")]
-    public async Task<IActionResult> GetRecentTracks([FromQuery] string userName)
+    
+    [HttpGet("top/artists")]
+    public async Task<IActionResult> GetTopArtists([FromQuery] string userName)
     {
-        var tracks = await _trackService.GetUserRecentTracks(userName);
-        return Ok(tracks);
+        var artists = await _trackService.GetTopArtists(userName);
+        return Ok(artists);
+    }
+
+    [HttpGet("statistic")]
+    public async Task<IActionResult> GetStatistic([FromQuery] string userName, [FromQuery] DateTime from, [FromQuery] DateTime to)
+    {
+        var statistic = await _trackService.GetUserStatistic(userName, from, to);
+        return Ok(statistic);
     }
 }
