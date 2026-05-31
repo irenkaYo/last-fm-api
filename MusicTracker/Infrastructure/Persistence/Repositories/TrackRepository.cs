@@ -18,4 +18,10 @@ public class TrackRepository : ITrackRepository
         List<Track> tracks = await _dbContext.Tracks.ToListAsync();
         return tracks;
     }
+
+    public async Task SaveTracks(List<Track> tracks)
+    {
+        await _dbContext.Tracks.AddRangeAsync(tracks);
+        await _dbContext.SaveChangesAsync();
+    }
 }
