@@ -15,10 +15,10 @@ public class SyncController : ControllerBase
         _syncService = syncService;
     }
 
-    [HttpPost("{userName}")]
-    public async Task<IActionResult> Sync(string userName)
+    [HttpPost("{username}")]
+    public async Task<IActionResult> Sync(string username)
     {
-        await _syncService.SaveRecentTracks(userName);
+        await _syncService.SaveRecentTracks(username);
 
         return Ok();
     }
