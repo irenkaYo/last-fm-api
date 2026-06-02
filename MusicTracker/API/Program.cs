@@ -1,3 +1,4 @@
+using API.Middleware;
 using Application.Interfaces;
 using Application.Interfaces.Repositories;
 using Application.Services;
@@ -31,6 +32,8 @@ builder.Services.AddHttpClient<IMusicApiClient, MusicApiClient>(client =>
 });
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseSwagger();
 app.UseSwaggerUI();
