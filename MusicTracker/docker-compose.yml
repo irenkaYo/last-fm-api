@@ -1,0 +1,27 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: music-postgres
+    environment:
+      POSTGRES_DB: musicdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: musictracker-api
+    ports:
+      - "5000:8080"
+    depends_on:
+      - postgres
+    environment:
+      ConnectionStrings__DefaultConnection: ${CONNECTION_STRING}
+
+volumes:
+  postgres_data:
