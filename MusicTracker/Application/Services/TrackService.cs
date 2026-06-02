@@ -22,10 +22,13 @@ public class TrackService : ITrackService
 
     public async Task<List<string>> GetTopArtists(string userName)
     {
-        List<Track> userTracks = await GetUserTracks(userName);
+        var history = await _listeningHistoryRepository.GetHistoryByUserName(userName);
 
-        return userTracks
-            .GroupBy(t => t.ArtistName)
+        var tracks = await _trackRepository.GetTracksByIds(
+            history.Select(h => h.TrackId).Distinct());
+
+        return history
+            .GroupBy(h => tracks.First(t => t.Id == h.TrackId).ArtistName)
             .OrderByDescending(g => g.Count())
             .Take(TopAtistsCount)
             .Select(g => g.Key)
