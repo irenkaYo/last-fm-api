@@ -26,8 +26,12 @@ public class SyncService : ISyncService
             throw new Exception("No recent tracks found");
 
         var recentTracks = response.RecentTracks.Track;
+        
+        var scrobbledTracks = recentTracks
+            .Where(t => t.Date != null)
+            .ToList();
 
-        var allTracks = await SaveNewTracks(recentTracks);
+        var allTracks = await SaveNewTracks(scrobbledTracks);
 
         var history = await CreateListeningHistory(
             userName,
@@ -45,6 +49,11 @@ public class SyncService : ISyncService
             .Where(rt => !allTracks.Any(t =>
                 t.Name == rt.Name &&
                 t.ArtistName == rt.Artist.Name))
+            .DistinctBy(rt => new
+            {
+                rt.Name,
+                Artist = rt.Artist.Name
+            })
             .ToList();
 
         List<Track> tracksToSave = [];
@@ -56,7 +65,7 @@ public class SyncService : ISyncService
                 newTrack.Artist.Name);
 
             TimeSpan totalDuration = new TimeSpan();
-            if (answer?.Track != null)
+            if (answer?.Track.Duration != null)
             {
                 int duration = int.Parse(answer.Track.Duration);
                 totalDuration = TimeSpan.FromMilliseconds(duration);
