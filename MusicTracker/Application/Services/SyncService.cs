@@ -1,4 +1,5 @@
 using Application.DTOs.External.RecentTracks;
+using Application.Exceptions;
 using Application.Interfaces;
 using Application.Interfaces.Repositories;
 using Domain.Models;
@@ -21,9 +22,9 @@ public class SyncService : ISyncService
     public async Task SaveRecentTracks(string userName)
     {
         var response = await _client.GetUserRecentTracks(userName);
-
+        
         if (response == null)
-            throw new Exception("No recent tracks found");
+            throw new NotFoundException("Recent tracks not found");
 
         var recentTracks = response.RecentTracks.Track;
         
@@ -63,6 +64,9 @@ public class SyncService : ISyncService
             var answer = await _client.GetTrackInfo(
                 newTrack.Name,
                 newTrack.Artist.Name);
+            
+            if (answer == null)
+                throw new NotFoundException("Track not found");
 
             TimeSpan totalDuration = new TimeSpan();
             if (answer?.Track.Duration != null)
