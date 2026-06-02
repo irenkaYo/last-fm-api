@@ -24,6 +24,8 @@ public class TrackService : ITrackService
     public async Task<List<string>> GetTopArtists(string userName)
     {
         var history = await _listeningHistoryRepository.GetHistoryByUserName(userName);
+        
+        IsUserExists(history);
 
         var tracks = await _trackRepository.GetTracksByIds(
             history.Select(h => h.TrackId).Distinct());
@@ -39,6 +41,8 @@ public class TrackService : ITrackService
     public async Task<List<Track>> GetTopTracks(string userName)
     {
         var history = await _listeningHistoryRepository.GetHistoryByUserName(userName);
+        
+        IsUserExists(history);
 
         var topTrackIds = history
             .GroupBy(h => h.TrackId)
@@ -61,6 +65,8 @@ public class TrackService : ITrackService
         
         var history = await _listeningHistoryRepository
             .GetHistoryByUserNameAndTime(userName, startDate, endDate);
+        
+        IsUserExists(history);
 
         var tracks = await _trackRepository.GetTracksByIds(
             history.Select(h => h.TrackId).Distinct());
@@ -79,5 +85,11 @@ public class TrackService : ITrackService
             trackCount,
             artistCount,
             totalDuration);
+    }
+
+    private void IsUserExists(List<ListeningHistory> history)
+    {
+        if (!history.Any())
+            throw new NotFoundException("User not found");
     }
 }
