@@ -55,26 +55,26 @@ public class TrackService : ITrackService
 
     public async Task<TrackStatisticDto> GetUserStatistic(string userName, DateTime startDate, DateTime endDate)
     {
-        List<Track> userTracks = await GetUserTracksByTime(userName, startDate, endDate);
+        var history = await _listeningHistoryRepository
+            .GetHistoryByUserNameAndTime(userName, startDate, endDate);
 
-        int trackCount = userTracks.Count;
+        var tracks = await _trackRepository.GetTracksByIds(
+            history.Select(h => h.TrackId).Distinct());
 
-        int artistCount = userTracks
+        int trackCount = history.Count;
+
+        int artistCount = tracks
             .Select(t => t.ArtistName)
             .Distinct()
             .Count();
 
-        TimeSpan totalDuration = TimeSpan.FromTicks(userTracks.Sum(t => t.Duration.Ticks) );
-        
-        TrackStatisticDto statistic = new TrackStatisticDto(trackCount, artistCount, totalDuration);
-        return statistic;
-    }
-    
-    private async Task<List<Track>> GetUserTracks(string userName)
-    {
-        var userHistory = await  _listeningHistoryRepository.GetHistoryByUserName(userName);
-        List<Track> userTracks = await _trackRepository.GetUserTracks(userHistory);
-        return userTracks;
+        TimeSpan totalDuration = TimeSpan.FromTicks(
+            history.Sum(h => tracks.First(t => t.Id == h.TrackId).Duration.Ticks));
+
+        return new TrackStatisticDto(
+            trackCount,
+            artistCount,
+            totalDuration);
     }
     
     private async Task<List<Track>> GetUserTracksByTime(string userName, DateTime startDate, DateTime endDate)
