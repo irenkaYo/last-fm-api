@@ -34,13 +34,19 @@ public class TrackService : ITrackService
 
     public async Task<List<Track>> GetTopTracks(string userName)
     {
-        List<Track> userTracks = await GetUserTracks(userName);
+        var history = await _listeningHistoryRepository.GetHistoryByUserName(userName);
 
-        return userTracks
-            .GroupBy(t => t.Id)
+        var topTrackIds = history
+            .GroupBy(h => h.TrackId)
             .OrderByDescending(g => g.Count())
             .Take(TopTracksCount)
-            .Select(g => g.First())
+            .Select(g => g.Key)
+            .ToList();
+
+        var tracks = await _trackRepository.GetTracksByIds(topTrackIds);
+
+        return topTrackIds
+            .Select(id => tracks.First(t => t.Id == id))
             .ToList();
     }
 
