@@ -36,7 +36,7 @@ public class TrackRepository : ITrackRepository
             .ToListAsync();
     }
     
-    public async Task<List<Track>> GetTracksByIds(List<Guid> trackIds)
+    public async Task<List<Track>> GetTracksByIds(IEnumerable<Guid> trackIds)
     {
         return await _dbContext.Tracks
             .Where(t => trackIds.Contains(t.Id))
