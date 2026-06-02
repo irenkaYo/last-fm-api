@@ -98,6 +98,9 @@ public class SyncService : ISyncService
 
         foreach (var recent in recentTracks)
         {
+            if (recent.Date == null)
+                continue;
+            
             DateTime playedAt = DateTimeOffset
                 .FromUnixTimeSeconds(long.Parse(recent.Date.Uts))
                 .UtcDateTime;
