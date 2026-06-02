@@ -76,11 +76,4 @@ public class TrackService : ITrackService
             artistCount,
             totalDuration);
     }
-    
-    private async Task<List<Track>> GetUserTracksByTime(string userName, DateTime startDate, DateTime endDate)
-    {
-        var userHistory = await  _listeningHistoryRepository.GetHistoryByUserNameAndTime(userName, startDate, endDate);
-        List<Track> userTracks = await _trackRepository.GetUserTracks(userHistory);
-        return userTracks;
-    }
 }
