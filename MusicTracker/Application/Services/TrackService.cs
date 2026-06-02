@@ -1,6 +1,7 @@
 using Application.DTOs.External;
 using Application.DTOs.External.LastFm.Tracks;
 using Application.DTOs.External.RecentTracks;
+using Application.Exceptions;
 using Application.Interfaces;
 using Application.Interfaces.Repositories;
 using Domain.Models;
@@ -55,6 +56,9 @@ public class TrackService : ITrackService
 
     public async Task<TrackStatisticDto> GetUserStatistic(string userName, DateTime startDate, DateTime endDate)
     {
+        if (startDate >= endDate)
+            throw new BadRequestException("Start date cannot be later than end date");
+        
         var history = await _listeningHistoryRepository
             .GetHistoryByUserNameAndTime(userName, startDate, endDate);
 
