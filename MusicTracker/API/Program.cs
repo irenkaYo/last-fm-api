@@ -10,6 +10,9 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.Configure<MusicApiSettings>(
+    builder.Configuration.GetSection("LastFm"));
+
 builder.Services.AddDbContext<MusicTrackerDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection")));
