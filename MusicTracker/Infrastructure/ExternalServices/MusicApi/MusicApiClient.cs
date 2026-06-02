@@ -1,5 +1,4 @@
 using System.Net.Http.Json;
-using Application.DTOs.External;
 using Application.DTOs.External.Info;
 using Application.DTOs.External.RecentTracks;
 using Application.Interfaces;
@@ -26,6 +25,9 @@ public class MusicApiClient : IMusicApiClient
 
     public async Task<TrackInfoResponseDto?> GetTrackInfo(string trackName, string artistName)
     {
-        return await _httpClient.GetFromJsonAsync<TrackInfoResponseDto>($"2.0/?method=track.getInfo&api_key={_apiKey}&artist={artistName}&track={trackName}&format=json");
+        var artist = Uri.EscapeDataString(artistName);
+        var track = Uri.EscapeDataString(trackName);
+        
+        return await _httpClient.GetFromJsonAsync<TrackInfoResponseDto>($"2.0/?method=track.getInfo&api_key={_apiKey}&artist={artist}&track={track}&format=json");
     }
 }
